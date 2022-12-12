@@ -1,0 +1,138 @@
+1. Database Commands
+
+View all
+show dbs
+
+Create a new or switch databases
+use dbName
+
+View current db
+db
+
+Delete Database 
+db.dropDatabase()
+
+---------
+
+db.createUser({
+    user: "asad",
+    pwd: "1234",
+    roles: ["readWrite", "dbAdmin"]
+})
+
+---------
+
+2. Collection Commands
+
+show collections
+
+Create a collection named 'comments'
+db.createCollection('comments')
+
+Drop a collection named 'comments'
+db.comments.drop()
+
+-------------
+INSERT
+
+db.comments.insertOne({
+    'name': 'Harry',
+    'lang': 'JavaScript',
+    'member_since': 5
+ })
+
+Insert many Rows
+db.comments.insertMany([{
+    'name': 'Harry',
+    'lang': 'JavaScript',
+    'member_since': 5
+    }, 
+    {'name': 'Rohan',
+    'lang': 'Python',
+    'member_since': 3
+    },
+    {'name': 'Lovish',
+    'lang': 'Java',
+    'member_since': 4
+}])
+
+------------
+DELETE
+
+db.comments.remove({name: 'Harry'})
+db.comments.remove({name: 'Harry'}, {justOne: true})
+
+
+--------------
+UPDATE
+
+updateOne({name:'asad'}, {$set: {name:'ali'}})
+updateMany()
+bulkWrite()
+
+db.comments.updateOne({name:'asad'}, {$set: {'name': 'Harry', 'lang': 'JavaScript', 'member_since': 51 }}, {upsert: true})
+
+-------
+REMOVE FIELD
+
+updateOne({name:'asad'}, {$unset: {age:1}})
+
+-------
+RENAME FIELD
+
+updateOne({name:'asad'}, {$rename: {age: 'date'}})
+
+--------------
+SEARCH
+
+Show all Rows
+db.comments.find()
+
+Show all Rows (Prettified)
+db.comments.find().pretty()
+
+Find the first row matching the object
+db.comments.findOne({name: 'Harry'})
+
+Limit the number of rows in output
+db.comments.find().limit(2)
+
+Count the number of rows in the output
+db.comments.find().count()
+
+Sort the rows in the output
+db.comments.find().sort(1)
+db.comments.find().sort(-1)
+
+forEach
+db.comments.find().forEach(function(){print('hello')})
+
+--------------
+Less than/Greater than/ Less than or Eq/Greater than or Eq
+
+db.comments.find({member_since: {$lt: 90}})
+db.comments.find({member_since: {$lte: 90}})
+db.comments.find({member_since: {$gt: 90}})
+db.comments.find({member_since: {$gte: 90}})
+
+--------------
+OPERATORS
+
+$set
+$unset
+$inc = increment
+$rename
+$or
+
+
+Mongodb Increment Operator
+db.comments.update({name: 'asad'},{$inc: {member_since: 2}})
+
+Mongodb Rename Operator
+db.comments.update({name: 'asad'},
+{$rename:{
+    member_since: 'member'
+}})
+
+Mongodb Or Operator
+db.comments.find({$or: [{name:'asad'}, {name:'ali'}]})

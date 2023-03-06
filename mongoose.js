@@ -29,5 +29,5 @@ user = new User({
 
 // save
 user.save()
-.then(res=> console.log(res) || user.speak())
+.then(res=> console.log(res) || user.speak() || mongoose.connection.close())
 .catch(err=> console.log(err))

@@ -20,20 +20,24 @@ db.createUser({
     roles: ["readWrite", "dbAdmin"]
 })
 
+roles: read, readWrite, dbAdmin, dbOwner, userAdmin ...
+
 ---------
 
-2. Collection Commands
+2. Collections
 
 show collections
-
-Create a collection named 'comments'
 db.createCollection('comments')
-
-Drop a collection named 'comments'
 db.comments.drop()
 
 -------------
 INSERT
+
+db.comments.insert({
+    'name': 'Harry',
+    'lang': 'JavaScript',
+    'member_since': 5
+ })  (depricated)
 
 db.comments.insertOne({
     'name': 'Harry',
@@ -59,14 +63,94 @@ db.comments.insertMany([{
 ------------
 DELETE
 
-db.comments.remove({name: 'Harry'})
-db.comments.remove({name: 'Harry'}, {justOne: true})
+
+db.comments.remove({name: 'Harry'}) (depricated)
+db.comments.remove({}, {justOne: true})
+
+db.comments.deleteOne({})
+db.comments.deleteMany({})
+
+db.comments.findOneAndDelete({})
 
 
 --------------
 UPDATE
 
-updateOne({name:'asad'}, {$set: {name:'ali'}})
+
+db.comments.update({name: 'Harry'}, {name: "Asad"}) (depricated)
+db.comments.updateOne({}, {name: "Asad"}) (depricated)
+db.comments.replaceOne({}, {name: "Asad"})
+
+db.comments.updateOne({}, {$set: {age: 2, "cancellation.status": false, "ratings.0.ratings": 4}})
+db.comments.updateOne({}, {$unset: {age: 1, "cancellation.status": 1, "ratings.0.ratings": 1}})
+
+db.comments.updateOne({products: 4}, {$set: {"products.$": 99}}) set value in array first match
+db.comments.updateOne({"products.name": "book"}, {$set: {"products.$.name": "favBook"}}) set field in array document
+
+db.comments.updateOne({}, {$set: {"products.0": 99}}) set value in array at index 0
+db.comments.updateOne({}, {$unset: {"products.0": 1}}) unset index 0 to null
+
+db.comments.updateOne({products: {$elemMatch: {price: {$gte: 100}}}}, {$set: {"products.$": 1}}) multiple match and set first value
+db.comments.updateOne({}, {$set: {"products.$[value]": 99}}, {arrayFilters: [{value: {$lte: 3}}] }) set multiple array value
+
+db.comments.updateOne({}, {$set: {"products.$[]": 99}}) set all array values to 99
+db.comments.updateOne({}, {$unset: {"products.$[]": 1}}) unset all array values to null
+
+
+db.comments.updateOne({products: 99}, {$unset: {"products.$": 1}}) unset array value to null
+db.comments.updateOne({"products.name": "book"}, {$unset: {"products.$.name": 1}}) unset field in array document
+
+db.comments.updateOne({}, {$currentDate: {lastModified: true} })
+db.comments.updateOne({}, {$currentDate: {lastModified: {$type: "date"} }})
+db.comments.updateOne({}, {$currentDate: {lastModified: {$type: "timestamp"} }})
+
+db.comments.updateOne({}, {$min: {score: 200} }) only accept the min val than prev
+db.comments.updateOne({}, {$max: {score: 300} }) only accept the max val than prev
+db.comments.updateOne({}, {$min: {startDate: new Date("2023-01-01")}, $max: {endDate: new Date("2023-12-31")} })
+
+db.comments.updateOne({}, {$mul: {age: 3} }) multiply age by 3
+
+db.students.updateOne({}, {$rename: {"name.first": "name.fname"} })
+
+db.students.updateOne({}, {$addToSet: {products: "one" } }) add single item
+db.students.updateOne({}, {$addToSet: {products: [1,2,3]} }) add whole array
+db.students.updateOne({}, {$addToSet: {products: {$each: [1,2,3]} }}) add whole array as each item
+
+db.students.updateOne({}, {$pop: {products: 1 } }) remove last element from array
+db.students.updateOne({}, {$pop: {products: -1 } }) remove last element from array
+
+db.students.updateOne({}, {$pull: {products: 3 }}) remove element from array with condition
+db.students.updateOne({}, {$pull: {products: {$exists: true} }}) remove all element from array
+db.students.updateOne({}, {$pullAll: {products: [1,2,3] }}) remove multiple element from array
+
+db.students.updateOne({}, {$push: {products: "one" }}) add single item 
+db.students.updateOne({}, {$push: {products: [1,2,3]} }) add whole array
+db.students.updateOne({}, {$push: {products: {$each: [1,2,3]} }}) add whole array as each item
+db.students.updateOne({}, {$push: {products: {$each: [1,2,3], $position: 0 }}}) specify position to start inserting
+db.students.updateOne({}, {$push: {products: {$each: [ {item: 2} ] }, $sort: {item: 1} }}) add item and sort
+db.students.updateOne({}, {$push: {products: {$each: [ {item: 3} ] }, $sort: {item: -1}, $slice: 5 }}) add, sort, splice
+db.students.updateOne({}, {$push: {products: {$each: [] }, $sort: -1 }}) sort only
+
+
+
+db.students.updateOne(
+   { _id: 5 },
+   {
+     $push: {
+       quizzes: {
+          $each: [ { wk: 5, score: 8 }, { wk: 6, score: 7 }, { wk: 7, score: 6 } ],
+          $sort: { score: -1 },
+          $slice: 3
+       }
+     }
+   }
+)
+
+
+
+
+
+
 updateMany()
 bulkWrite()
 
@@ -83,29 +167,33 @@ RENAME FIELD
 updateOne({name:'asad'}, {$rename: {age: 'date'}})
 
 --------------
-SEARCH
+FIND
 
-Show all Rows
+an array || nothing
 db.comments.find()
-
-Show all Rows (Prettified)
+db.comments.find({})
+db.comments.find({}, {_id: 0})
 db.comments.find().pretty()
-
-Find the first row matching the object
-db.comments.findOne({name: 'Harry'})
-
-Limit the number of rows in output
 db.comments.find().limit(2)
 
-Count the number of rows in the output
 db.comments.find().count()
+db.comments.count() (depricated)
+db.comments.countDocuments()
+db.comments.estimatedDocumentCount()
 
-Sort the rows in the output
 db.comments.find().sort(1)
 db.comments.find().sort(-1)
 
-forEach
 db.comments.find().forEach(function(){print('hello')})
+
+object || null
+db.comments.findOne({name: 'Harry'})
+
+db.comments.findOneAndDelete
+db.comments.findOneAndReplace
+db.comments.findOneAndUpdate(query, update, options)
+returnNewDocument: true/false | returnDocument: "before"/"after"
+
 
 --------------
 Less than/Greater than/ Less than or Eq/Greater than or Eq
@@ -118,15 +206,17 @@ db.comments.find({member_since: {$gte: 90}})
 --------------
 OPERATORS
 
-$set
-$unset
-$inc = increment
-$rename
+$set - set a field 
+$unset - unset a field
+$inc - increment a field
+$mul - multiply a field
+$rename - rename a field
 $or
+$currentDate - set current date or timestamp to a field 
 
 
-Mongodb Increment Operator
-db.comments.update({name: 'asad'},{$inc: {member_since: 2}})
+increment by 5
+db.comments.update({name: 'asad'},{$inc: {member_since: 5}})
 
 Mongodb Rename Operator
 db.comments.update({name: 'asad'},
@@ -136,3 +226,39 @@ db.comments.update({name: 'asad'},
 
 Mongodb Or Operator
 db.comments.find({$or: [{name:'asad'}, {name:'ali'}]})
+
+
+------------
+Types 
+
+Number("")
+Decimal128("")
+NumberLong("") | Long("")
+
+Int32("")
+
+----------------
+Array Operators
+
+$ - positional operator
+$[] - all positional operator
+$[<identifier>] - filtered positional operator
+$addToSet - add to set
+$pop
+$pull
+$push
+$pullAll
+
+Note: diff b/w $addToSet & $push
+$addToSet: add value only if it is not already exists
+$push: append value anyway  
+
+-----------
+Modifiers can be used with $addToSet | $push
+$each
+$position (0=start, -1=secondLast, -2=thirdLast )
+$slice: <num>
+
+Zero: To update the array <field> to an empty array.
+Negative: To update the array <field> to contain only the last <num> elements.
+Positive: To update the array <field> contain only the first <num> elements.

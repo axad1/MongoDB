@@ -1,0 +1,22 @@
+db.num.insert({
+  "_id": 1,
+  "numbers": [
+    {
+      "number": "+123",
+      "subscriptions": [
+        {
+          "quota": {
+            "sms": 120
+          }
+        }
+      ]
+    }
+  ]
+})
+
+
+db.num.findOneAndUpdate({_id: 1, "numbers.number": "+123" }, {$inc: {"numbers.$.subscriptions.$[item].quota.sms": -1 }}, {arrayFilters: [{"item.quota.sms": {$gte: 100}}], projection: {numbers: 1}  } )
+
+db.num.updateOne({_id: 1, "numbers.number": "+123" }, {$inc: {"numbers.$.subscriptions.$[item].quota.sms": -1 }}, {arrayFilters: [{"item.quota.sms": {$gte: 100}}], projection: {numbers: 1}  } )
+
+{arrayFilters: { [{"item.quota.sms": {$gte: 100}  }  ] }}

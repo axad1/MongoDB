@@ -146,8 +146,11 @@ db.students.updateOne(
    }
 )
 
-
-
+db.students.findAndModify({
+  query: {_id: ObjectId("id")},
+  update: {name: "axad"},
+  new: true
+})
 
 
 

@@ -1,0 +1,4 @@
+What does my application do?
+What data will I store?
+How will users access this data?
+What data will be most valuable to me?
